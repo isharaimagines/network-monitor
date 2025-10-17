@@ -119,7 +119,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ### Reporting Vulnerabilities
 
-If you discover a security vulnerability, please email: security@yourdomain.com
+If you discover a security vulnerability, please email [US](mailto:studymotivat01@gmail.com)
 
 **Do not** open a public issue.
 
