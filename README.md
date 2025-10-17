@@ -19,7 +19,7 @@
 
 ---
 
-## [OK] Overview
+## 📋 Overview
 
 **Network Monitor** is a new, easy-to-use web application that provides real-time monitoring of your network traffic, connections, and statistics. Built with Python + Flask and featuring a terminal-style dashboard, it gives you complete visibility into your network activity.
 
