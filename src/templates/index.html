@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network Monitor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+      /* Keep all the existing CSS styles from your original file */
+      /* They work perfectly for Electron */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #1a1b26;
+        color: #c0caf5;
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 14px;
+        line-height: 1.4;
+        overflow-x: hidden;
+      }
+
+      .terminal {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        border-bottom: 1px solid #3b4261;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      .prompt {
+        color: #7aa2f7;
+        font-weight: bold;
+      }
+
+      .command {
+        color: #9ece6a;
+      }
+
+      .path {
+        color: #e0af68;
+      }
+
+      .stats-bar {
+        display: flex;
+        gap: 30px;
+        margin: 15px 0;
+        padding: 10px;
+        background: #16161e;
+        border: 1px solid #3b4261;
+        border-radius: 4px;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .stat-label {
+        color: #a9b1d6;
+      }
+
+      .stat-value {
+        color: #7aa2f7;
+        font-weight: bold;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #3b4261;
+      }
+
+      .tab {
+        padding: 8px 16px;
+        background: #16161e;
+        border: 1px solid #3b4261;
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        cursor: pointer;
+        color: #a9b1d6;
+      }
+
+      .tab.active {
+        background: #1a1b26;
+        color: #7aa2f7;
+        border-bottom: 1px solid #1a1b26;
+        margin-bottom: -1px;
+      }
+
+      .tab-content {
+        display: none;
+        background: #16161e;
+        border: 1px solid #3b4261;
+        border-radius: 0 4px 4px 4px;
+        padding: 15px;
+        min-height: 400px;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .table th {
+        text-align: left;
+        padding: 8px 12px;
+        background: #1a1b26;
+        color: #7aa2f7;
+        border-bottom: 1px solid #3b4261;
+        font-weight: bold;
+      }
+
+      .table td {
+        padding: 6px 12px;
+        border-bottom: 1px solid #2a2c3e;
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 12px;
+      }
+
+      .table tr:hover {
+        background: #1f2335;
+      }
+
+      .protocol-tcp {
+        color: #9ece6a;
+      }
+      .protocol-udp {
+        color: #e0af68;
+      }
+      .protocol-icmp {
+        color: #bb9af7;
+      }
+      .protocol-arp {
+        color: #f7768e;
+      }
+      .protocol-unknown {
+        color: #a9b1d6;
+      }
+
+      .status-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #16161e;
+        border-top: 1px solid #3b4261;
+        padding: 8px 20px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #9ece6a;
+      }
+
+      .status-dot.warning {
+        background: #e0af68;
+      }
+
+      .log-entry {
+        padding: 4px 0;
+        border-bottom: 1px solid #2a2c3e;
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 12px;
+      }
+
+      .log-time {
+        color: #565f89;
+      }
+
+      .log-protocol {
+        font-weight: bold;
+      }
+
+      .scrollable {
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      /* Scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #16161e;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #3b4261;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #565f89;
+      }
+
+      .connection-status {
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      .status-established {
+        background: #1f3322;
+        color: #9ece6a;
+      }
+      .status-listen {
+        background: #2a2a3c;
+        color: #7aa2f7;
+      }
+      .status-time_wait {
+        background: #3a2a2a;
+        color: #e0af68;
+      }
+
+      .help-text {
+        color: #565f89;
+        font-style: italic;
+        margin: 10px 0;
+      }
+
+      /* Electron specific styles */
+      .electron-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .control-btn {
+        padding: 6px 12px;
+        background: #1a1b26;
+        border: 1px solid #3b4261;
+        border-radius: 4px;
+        color: #c0caf5;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .control-btn:hover {
+        background: #2a2b36;
+      }
+
+      .control-btn:active {
+        background: #16161e;
+      }
+    </style>
+  </head>
+  <body data-scapy-available="{{ 'true' if scapy_available else 'false' }}">
+    <div class="terminal">
+      <div class="header">
+        <div class="prompt-line">
+          <span class="prompt">→</span>
+          <span class="path">~/network/monitor</span>
+          <span class="command">./netwatch.py</span>
+        </div>
+        <div class="help-text">
+          # Real-time network monitoring interface | Socket:
+          <span id="socket-status">● connecting...</span>
+        </div>
+
+        <!-- Electron controls -->
+        <div class="electron-controls">
+          <button class="control-btn" onclick="restartMonitor()">
+            🔄 Restart Monitor
+          </button>
+          <button class="control-btn" onclick="showAbout()">ℹ️ About</button>
+          <span style="flex: 1"></span>
+          <span id="electron-status" style="color: #565f89"
+            >Electron Desktop App</span
+          >
+        </div>
+      </div>
+
+      <div class="stats-bar" id="stats-bar">
+        <div class="stat-item">
+          <span class="stat-label">packets:</span>
+          <span class="stat-value" id="stat-packets">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">tcp:</span>
+          <span class="stat-value" id="stat-tcp">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">udp:</span>
+          <span class="stat-value" id="stat-udp">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">connections:</span>
+          <span class="stat-value" id="stat-connections">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">uptime:</span>
+          <span class="stat-value" id="stat-uptime">00:00:00</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('packets')">📦 packets</div>
+        <div class="tab" onclick="switchTab('connections')">🔌 connections</div>
+        <div class="tab" onclick="switchTab('statistics')">📊 statistics</div>
+      </div>
+
+      <div id="packets-tab" class="tab-content active">
+        <div class="help-text">
+          # Live packet capture - showing last 30 packets
+        </div>
+        <div class="scrollable">
+          <table class="table" id="packets-table">
+            <thead>
+              <tr>
+                <th width="100">time</th>
+                <th width="80">protocol</th>
+                <th width="200">source</th>
+                <th width="200">destination</th>
+                <th width="80">length</th>
+                <th>info</th>
+              </tr>
+            </thead>
+            <tbody id="packets-body">
+              <tr>
+                <td colspan="6" style="text-align: center; color: #565f89">
+                  waiting for packet data...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="connections-tab" class="tab-content">
+        <div class="help-text"># Active network connections</div>
+        <div class="scrollable">
+          <table class="table" id="connections-table">
+            <thead>
+              <tr>
+                <th width="250">local address</th>
+                <th width="250">remote address</th>
+                <th width="100">status</th>
+                <th width="80">pid</th>
+              </tr>
+            </thead>
+            <tbody id="connections-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: #565f89">
+                  loading connections...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="statistics-tab" class="tab-content">
+        <div class="help-text"># Network statistics and system information</div>
+        <div id="stats-content">
+          <pre id="stats-text">loading statistics...</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-indicator">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">starting monitor...</span>
+      </div>
+      <div id="update-time">last update: --:--:--</div>
+    </div>
+
+    <script>
+      // Connect to Flask server
+      const socket = io("http://127.0.0.1:5000");
+      let lastUpdate = new Date();
+
+      // Electron API integration
+      if (window.electronAPI) {
+        window.electronAPI.onPythonOutput((event, message) => {
+          console.log("Python:", message);
+        });
+
+        window.electronAPI.onPythonError((event, error) => {
+          console.error("Python Error:", error);
+          updateStatus("error", `Backend error: ${error}`);
+        });
+
+        window.electronAPI.onPythonClosed((event, data) => {
+          if (data.unexpected) {
+            updateStatus("error", "Backend process crashed");
+          }
+        });
+
+        window.electronAPI.onPythonStopped(() => {
+          updateStatus("stopped", "Monitor stopped");
+        });
+
+        window.electronAPI.onPythonRestarted(() => {
+          updateStatus("restarting", "Restarting monitor...");
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        });
+      }
+
+      socket.on("connect", function () {
+        document.getElementById("socket-status").textContent = "● connected";
+        document.getElementById("socket-status").style.color = "#9ece6a";
+        updateStatus("connected", "monitoring active");
+      });
+
+      socket.on("disconnect", function () {
+        document.getElementById("socket-status").textContent = "● disconnected";
+        document.getElementById("socket-status").style.color = "#f7768e";
+        updateStatus("disconnected", "server disconnected");
+      });
+
+      socket.on("network_update", function (data) {
+        lastUpdate = new Date();
+        updateDisplay(data);
+      });
+
+      function updateDisplay(data) {
+        // Update stats bar
+        document.getElementById("stat-packets").textContent =
+          data.packet_count.toLocaleString();
+        document.getElementById("stat-tcp").textContent = (
+          data.protocol_stats.TCP || 0
+        ).toLocaleString();
+        document.getElementById("stat-udp").textContent = (
+          data.protocol_stats.UDP || 0
+        ).toLocaleString();
+        document.getElementById("stat-connections").textContent =
+          data.active_connections_count.toLocaleString();
+        document.getElementById("stat-uptime").textContent = data.uptime;
+
+        // Update packets table
+        updatePacketsTable(data.recent_packets);
+
+        // Update connections table
+        updateConnectionsTable(data.connections);
+
+        // Update statistics
+        updateStatistics(data);
+
+        // Update status
+        document.getElementById(
+          "update-time"
+        ).textContent = `last update: ${lastUpdate.toLocaleTimeString()}`;
+
+        const statusDot = document.getElementById("status-dot");
+        const statusText = document.getElementById("status-text");
+
+        if (data.scapy_available) {
+          statusDot.className = "status-dot";
+          statusText.textContent =
+            "● monitoring active - packet capture enabled";
+        } else {
+          statusDot.className = "status-dot warning";
+          statusText.textContent =
+            "● limited mode - packet capture disabled (install scapy)";
+        }
+      }
+
+      function updatePacketsTable(packets) {
+        const tbody = document.getElementById("packets-body");
+
+        if (packets.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #565f89;">
+                            no packets captured yet...
+                        </td>
+                    </tr>
+                `;
+          return;
+        }
+
+        tbody.innerHTML = packets
+          .map(
+            (packet) => `
+                    <tr>
+                        <td>${packet.time}</td>
+                        <td><span class="protocol-${packet.protocol.toLowerCase()}">${
+              packet.protocol
+            }</span></td>
+                        <td>${packet.src}</td>
+                        <td>${packet.dst}</td>
+                        <td>${packet.length}</td>
+                        <td>${packet.info}</td>
+                    </tr>
+                `
+          )
+          .join("");
+      }
+
+      function updateConnectionsTable(connections) {
+        const tbody = document.getElementById("connections-body");
+
+        if (connections.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #565f89;">
+                            no active connections found
+                        </td>
+                    </tr>
+                `;
+          return;
+        }
+
+        tbody.innerHTML = connections
+          .map(
+            (conn) => `
+                    <tr>
+                        <td>${conn.local}</td>
+                        <td>${conn.remote}</td>
+                        <td>
+                            <span class="connection-status status-${conn.status.toLowerCase()}">
+                                ${conn.status}
+                            </span>
+                        </td>
+                        <td>${conn.pid}</td>
+                    </tr>
+                `
+          )
+          .join("");
+      }
+
+      function updateStatistics(data) {
+        const statsText = document.getElementById("stats-text");
+        const net = data.network_stats;
+
+        const stats = `
+NETWORK STATISTICS
+${"=".repeat(50)}
+
+Packet Capture:
+  Total Packets: ${data.packet_count.toLocaleString()}
+  TCP: ${(data.protocol_stats.TCP || 0).toLocaleString()}
+  UDP: ${(data.protocol_stats.UDP || 0).toLocaleString()}
+  ICMP: ${(data.protocol_stats.ICMP || 0).toLocaleString()}
+  ARP: ${(data.protocol_stats.ARP || 0).toLocaleString()}
+
+Network I/O:
+  Bytes Sent: ${formatBytes(net.bytes_sent)}
+  Bytes Received: ${formatBytes(net.bytes_recv)}
+  Packets Sent: ${net.packets_sent.toLocaleString()}
+  Packets Received: ${net.packets_recv.toLocaleString()}
+
+Connections:
+  Active: ${data.active_connections_count}
+  Established: ${
+    data.connections.filter((c) => c.status === "ESTABLISHED").length
+  }
+
+System:
+  Uptime: ${data.uptime}
+  Packet Capture: ${data.scapy_available ? "ENABLED" : "DISABLED"}
+  Mode: ${
+    data.scapy_available
+      ? "Full monitoring"
+      : "Limited (connection monitoring only)"
+  }
+            `.trim();
+
+        statsText.textContent = stats;
+      }
+
+      function formatBytes(bytes) {
+        const units = ["B", "KB", "MB", "GB", "TB"];
+        let value = bytes;
+        let unitIndex = 0;
+
+        while (value >= 1024 && unitIndex < units.length - 1) {
+          value /= 1024;
+          unitIndex++;
+        }
+
+        return `${value.toFixed(2)} ${units[unitIndex]}`;
+      }
+
+      function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Remove active class from all tab buttons
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Show selected tab
+        document.getElementById(`${tabName}-tab`).classList.add("active");
+
+        // Activate selected tab button
+        event.target.classList.add("active");
+      }
+
+      function updateStatus(type, message) {
+        const dot = document.getElementById("status-dot");
+        const text = document.getElementById("status-text");
+
+        switch (type) {
+          case "connected":
+            dot.style.background = "#9ece6a";
+            break;
+          case "error":
+            dot.style.background = "#f7768e";
+            break;
+          case "stopped":
+            dot.style.background = "#565f89";
+            break;
+          case "restarting":
+            dot.style.background = "#e0af68";
+            break;
+          case "disconnected":
+            dot.style.background = "#f7768e";
+            break;
+        }
+
+        text.textContent = message;
+      }
+
+      // Electron-specific functions
+      function restartMonitor() {
+        if (window.electronAPI) {
+          // This will trigger the restart via main process
+          console.log("Restarting monitor...");
+        } else {
+          location.reload();
+        }
+      }
+
+      function showAbout() {
+        if (window.electronAPI) {
+          window.electronAPI.showMessageBox({
+            type: "info",
+            title: "About Network Monitor",
+            message: "Network Monitor",
+            detail:
+              "A desktop application for monitoring network traffic and connections.\n\nVersion 1.0.0\nBuilt with Electron + Python",
+          });
+        } else {
+          alert("Network Monitor\nVersion 1.0.0\nBuilt with Electron + Python");
+        }
+      }
+
+      // Initial setup
+      document.addEventListener("DOMContentLoaded", function () {
+        const scapyAvailable =
+          document.body.getAttribute("data-scapy-available") === "true";
+        document.getElementById("status-dot").className = scapyAvailable
+          ? "status-dot"
+          : "status-dot warning";
+      });
+    </script>
+  </body>
+</html>
