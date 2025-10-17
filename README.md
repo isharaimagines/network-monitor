@@ -19,7 +19,7 @@
 
 ---
 
-## 📋 Overview
+## [OK] Overview
 
 **Network Monitor** is a new, easy-to-use web application that provides real-time monitoring of your network traffic, connections, and statistics. Built with Python + Flask and featuring a terminal-style dashboard, it gives you complete visibility into your network activity.
 
@@ -141,7 +141,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ```
 MIT License
 
-Copyright (c) 2024 Network Monitor Contributors
+Copyright (c) 2025 Network Monitor Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
