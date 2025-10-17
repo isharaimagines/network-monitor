@@ -39,7 +39,16 @@
 
 ## 📥 Installation
 
+### Local Install
+
 Download from [Network Monitor]() Right-click and "Run as Administrator"
+
+### Local Run
+
+```
+npm install
+npm run dev
+```
 
 ## ✨ Features
 
