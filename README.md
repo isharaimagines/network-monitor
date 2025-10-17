@@ -9,11 +9,16 @@
 
 **Real-time network monitoring with a web dashboard**
 
-[Quick Start](#-overview) •
-[Features](#-features) •
+[Overview](#-overview) •
 [Installation](#-installation) •
-[Documentation](#-documentation) •
-[Support](#-support)
+[Features](#-features) •
+[Configurations](#️-configurations) •
+[Changelog](#-changelog) •
+[Security](#-security) •
+[License](#-license) •
+[Acknowledgments](#-acknowledgments) •
+[Project Stats](#-project-stats) •
+[Use Case](#-use-cases)
 
 </div>
 
@@ -32,7 +37,9 @@
 - 📊 **Real-time** - Live updates via WebSocket connections
 - 🔒 **Secure** - Run locally, no data sent to external servers
 
----
+## 📥 Installation
+
+Download from [Network Monitor]() Right-click and "Run as Administrator"
 
 ## ✨ Features
 
@@ -60,7 +67,7 @@
 
 ---
 
-## ⚙️ Configuration
+## ⚙️ Configurations
 
 ### Environment Variables
 
