@@ -9,7 +9,7 @@
 
 **Real-time network monitoring with a web dashboard**
 
-[Quick Start](#-quick-start) •
+[Quick Start](#-overview) •
 [Features](#-features) •
 [Installation](#-installation) •
 [Documentation](#-documentation) •
@@ -21,14 +21,13 @@
 
 ## 📋 Overview
 
-**Network Monitor** is a powerful, easy-to-use web application that provides real-time monitoring of your network traffic, connections, and statistics. Built with Flask and featuring a terminal-style dashboard, it gives you complete visibility into your network activity.
+**Network Monitor** is a new, easy-to-use web application that provides real-time monitoring of your network traffic, connections, and statistics. Built with Python + Flask and featuring a terminal-style dashboard, it gives you complete visibility into your network activity.
 
 ### Why Network Monitor?
 
 - 🚀 **Easy to Use** - Start monitoring in under 2 minutes
 - 🎨 **NEW UI** - Terminal-style web interface with real-time updates
 - 🔍 **Deep Insights** - Track packets, connections, protocols, and bandwidth
-- 🐳 **Docker Ready** - Deploy anywhere with one command
 - 🔧 **Flexible** - Multiple installation methods for all platforms
 - 📊 **Real-time** - Live updates via WebSocket connections
 - 🔒 **Secure** - Run locally, no data sent to external servers
@@ -56,7 +55,6 @@
 - Scapy for packet capture (optional)
 - psutil for system metrics
 - Cross-platform (Windows, macOS, Linux)
-- Docker containerization
 - RESTful API endpoints
 - Environment-based configuration
 
@@ -79,9 +77,6 @@ DEBUG=false
 UPDATE_INTERVAL=2        # Seconds between updates
 MAX_PACKETS=50          # Maximum packets to store
 MAX_CONNECTIONS=30      # Maximum connections to display
-
-# Security (optional)
-# CORS_ORIGINS=http://localhost:3000,https://yourdomain.com
 ```
 
 ### Generate Secure Secret Key
@@ -106,19 +101,17 @@ python -c "import secrets; print(secrets.token_hex(32))"
 
 ## 📝 Changelog
 
-### Version 1.0.0 (2024-10-17)
+### Version 1.0.0 (2025-10-17)
 
 **Initial Release**
 
 - ✨ Real-time packet capture
 - ✨ Network connection monitoring
 - ✨ Protocol statistics
-- ✨ Web-based dashboard
+- ✨ Cross-platform dashboard
 - ✨ WebSocket live updates
-- ✨ Docker support
 - ✨ Cross-platform compatibility
 - ✨ Multiple installation methods
-- ✨ Comprehensive documentation
 
 ---
 
@@ -171,35 +164,18 @@ Built with these amazing open-source projects:
 
 - [Flask](https://flask.palletsprojects.com/) - Web framework
 - [Flask-SocketIO](https://flask-socketio.readthedocs.io/) - WebSocket support
+- [Electron JS](https://www.electronjs.org/) Build cross-platform desktop apps with JavaScript
 - [Scapy](https://scapy.net/) - Packet manipulation
 - [psutil](https://github.com/giampaolo/psutil) - System monitoring
-- [Docker](https://www.docker.com/) - Containerization
-
----
-
-## 🗺️ Roadmap
-
-### Planned Features
-
-- [ ] Export data to CSV/JSON
-- [ ] Custom filtering rules
-- [ ] Alert notifications
-- [ ] Historical data storage
-- [ ] Multiple interface support
-- [ ] Dark/light theme toggle
-- [ ] Mobile app
-- [ ] API authentication
-- [ ] Plugin system
-- [ ] Advanced analytics
 
 ---
 
 ## 📊 Project Stats
 
-![GitHub stars](https://img.shields.io/github/stars/yourusername/network-monitor?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/network-monitor?style=social)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/network-monitor)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/network-monitor)
+![GitHub stars](https://img.shields.io/github/stars/isharaimagines/network-monitor?style=social)
+![GitHub forks](https://img.shields.io/github/forks/isharaimagines/network-monitor?style=social)
+![GitHub issues](https://img.shields.io/github/issues/isharaimagines/network-monitor)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/isharaimagines/network-monitor)
 
 ---
 
