@@ -41,7 +41,7 @@
 
 ### Local Install
 
-Download from [Network Monitor]() Right-click and "Run as Administrator"
+Download from ⬇️[Network Monitor](https://drive.google.com/file/d/1soclJ5LPTV3MBCjafrxCh0UIXbYztlzh/view?usp=sharing) Right-click and "Run as Administrator"
 
 ### Local Run
 
