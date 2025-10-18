@@ -46,6 +46,8 @@ Download [🔎Network Monitor](https://drive.google.com/file/d/1soclJ5LPTV3MBCja
 ### Local Run
 
 ```
+git clone https://github.com/isharaimagines/network-monitor.git
+cd network-monitor
 npm install
 npm run dev
 ```
