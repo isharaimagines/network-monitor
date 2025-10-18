@@ -17,6 +17,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        user-select: none;
       }
 
       body {
@@ -267,6 +268,10 @@
         color: #c0caf5;
         cursor: pointer;
         font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        gap: 4px;
       }
 
       .control-btn:hover {
@@ -276,6 +281,11 @@
       .control-btn:active {
         background: #16161e;
       }
+      .control-btn-icon {
+        width: 14px;
+        height: 14px;
+        color: #fff;
+      }
     </style>
   </head>
   <body data-scapy-available="{{ 'true' if scapy_available else 'false' }}">
@@ -283,8 +293,8 @@
       <div class="header">
         <div class="prompt-line">
           <span class="prompt">→</span>
-          <span class="path">~/network/monitor</span>
-          <span class="command">./netwatch.py</span>
+          <span class="path">~/resources/src</span>
+          <span class="command">./app.py</span>
         </div>
         <div class="help-text">
           # Real-time network monitoring interface | Socket:
@@ -294,12 +304,21 @@
         <!-- Electron controls -->
         <div class="electron-controls">
           <button class="control-btn" onclick="restartMonitor()">
-            🔄 Restart Monitor
+            <svg
+              class="control-btn-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 4C9.25144 4 6.82508 5.38626 5.38443 7.5H8V9.5H2V3.5H4V5.99936C5.82381 3.57166 8.72764 2 12 2C17.5228 2 22 6.47715 22 12H20C20 7.58172 16.4183 4 12 4ZM4 12C4 16.4183 7.58172 20 12 20C14.7486 20 17.1749 18.6137 18.6156 16.5H16V14.5H22V20.5H20V18.0006C18.1762 20.4283 15.2724 22 12 22C6.47715 22 2 17.5228 2 12H4Z"
+              ></path>
+            </svg>
+            Restart Monitor
           </button>
-          <button class="control-btn" onclick="showAbout()">ℹ️ About</button>
           <span style="flex: 1"></span>
-          <span id="electron-status" style="color: #565f89"
-            >Electron Desktop App</span
+          <span id="electron-status" style="color: #598cf9; font-weight: 600"
+            >Initialized</span
           >
         </div>
       </div>
@@ -669,10 +688,10 @@ System:
             title: "About Network Monitor",
             message: "Network Monitor",
             detail:
-              "A desktop application for monitoring network traffic and connections.\n\nVersion 1.0.0\nBuilt with Electron + Python",
+              "A desktop application for monitoring network traffic and connections.\n\nVersion 1.0.0",
           });
         } else {
-          alert("Network Monitor\nVersion 1.0.0\nBuilt with Electron + Python");
+          alert("Network Monitor\n1.0.0v");
         }
       }
 
